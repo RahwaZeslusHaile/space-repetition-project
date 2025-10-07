@@ -1,72 +1,13 @@
 import { getUserIds } from "./users.mjs";
-import { calculateRevisionDates } from "./storage.mjs";
+import { getData } from "./storage.mjs";
 
-// object contains key of topic and date
-export const agendas = [
-  {
-    userId: "1",
-    topic: "Introduction to Spaced Repetition",
-    inputDate: "2025-07-01",
-    revisionDates: [
-      "2025-07-08",
-      "2025-08-01",
-      "2025-11-01",
-      "2026-02-01",
-      "2026-07-01",
-    ],
-  },
-  {
-    userId: "2",
-    topic: "Introduction to objects and arrays",
-    inputDate: "2025-07-02",
-    revisionDates: [
-      "2025-07-09",
-      "2025-08-02",
-      "2025-11-02",
-      "2026-02-02",
-      "2026-07-02",
-    ],
-  },
-  {
-    userId: "3",
-    topic: "What is the DOM?",
-    inputDate: "2025-07-03",
-    revisionDates: [
-      "2025-07-10",
-      "2025-08-03",
-      "2025-11-03",
-      "2026-02-03",
-      "2026-07-03",
-    ],
-  },
-  {
-    userId: "4",
-    topic: "How to fetch data from an API",
-    inputDate: "2025-07-04",
-    revisionDates: [
-      "2025-07-11",
-      "2025-08-04",
-      "2025-11-04",
-      "2026-02-04",
-      "2026-07-04",
-    ],
-  },
-  {
-    userId: "5",
-    topic: "Introduction to Local Storage",
-    inputDate: "2024-11-05",
-    revisionDates: [
-      "2024-11-12",
-      "2024-12-05",
-      "2025-03-05",
-      "2025-06-05",
-      "2025-11-05",
-    ],
-  },
-];
 
 const userSelect = document.getElementById("userSelect");
-// function to create user dropdown
+
+/**
+ * Create the User dropdown
+ */
+
 export function createUserDropdown() {
   const userIds = getUserIds();
 
@@ -87,28 +28,58 @@ createUserDropdown();
 // render the data in the div
 const displayData = document.getElementById("renderedData");
 
-// function to render the data
-export function renderDataCard(data) {
-  displayData.innerHTML = `
-    <h2>Study Topic: ${data.topic}</h2>
-    <p>Initial Date: ${data.inputDate}</p>
-    <h3>Revision Dates:</h3>
-    <ul>
-      <li>1 Week: ${data.revisionDates[0]}</li>
-      <li>1 Month: ${data.revisionDates[1]}</li>
-      <li>3 Months: ${data.revisionDates[2]}</li>
-      <li>6 Months: ${data.revisionDates[3]}</li>
-      <li>1 Year: ${data.revisionDates[4]}</li>
-    </ul>
-  `;
+/**
+ * Filters the input dates and sorts in chronological order
+ * @param {Array} userData - The user data array
+ * @returns {Array} The filtered and sorted user data
+ */
+// filter out past dates and sort input dates into chronological order
+export function filterAndSortData(userData) {
+  const todaysDate = new Date().toISOString().split("T")[0];
+  
+  return userData
+    .filter(item => {
+      // only include items where inputDate is today or in the future
+      return item.inputDate >= todaysDate;
+    })
+    .sort((a,b) => {
+      // oldest first
+      const dateA = new Date(a.inputDate)
+      const dateB = new Date(b.inputDate)
+      return dateA - dateB 
+    })
 }
 
-// on selecting the user in the dropdown show data for user id
-export function showDataForUser(userId, agendas) {
-  const userData = agendas.find((agenda) => agenda.userId === userId);
+// function to render the data
+export function renderDataCard(userData) {
+  const userInfoCard = userData.map ((item, index) => `
+  <h2><strong>Topic: ${item.topic}</strong></h2>
+    <p>StartingDate: ${item.inputDate}</p>
+    <h3>Revision Dates:</h3>
+    <ul>
+      <li>1 Week: ${item.revisionDates.oneWeek}</li>
+      <li>1 Month: ${item.revisionDates.oneMonth}</li>
+      <li>3 Months: ${item.revisionDates.threeMonths}</li>
+      <li>6 Months: ${item.revisionDates.sixMonths}</li>
+      <li>1 Year: ${item.revisionDates.oneYear}</li>
+    </ul>
+    `
+    ).join("<hr>");
+  displayData.innerHTML = userInfoCard;
+}
 
-  if (userData) {
-    renderDataCard(userData);
+/**
+ * Show the data for the user if it exists in localStorage
+ * @param {string} userId - The user's ID
+ * @returns the data or a message if no data found
+ */
+// on selecting the user in the dropdown show data for user id
+export function showDataForUser(userId) {
+  const userData = getData(userId);
+// if there is data stored for the user, render it
+  if (userData && userData.length > 0) {
+    const sortedData = filterAndSortData(userData);
+    renderDataCard(sortedData);
   } else {
     displayData.innerHTML = "<p>No data found for this user.</p>";
   }
@@ -118,8 +89,10 @@ export function showDataForUser(userId, agendas) {
 userSelect.addEventListener("change", (event) => {
   const selectedUser = event.target.value;
   if (selectedUser) {
-    showDataForUser(selectedUser, agendas);
+    showDataForUser(selectedUser);
   } else {
     displayData.innerHTML = ""; // nothing to display if the default option is selected
   }
 });
+
+
