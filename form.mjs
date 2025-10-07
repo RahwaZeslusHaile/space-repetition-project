@@ -1,6 +1,6 @@
 import { calculateRevisionDates } from "./storage.mjs";
 
-export function handleForm() {
+export function handleForm(onSubmit) {
   document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("revisionForm");
     const topic = document.getElementById("topic");
@@ -9,17 +9,21 @@ export function handleForm() {
     const dateError = document.getElementById("date-error");
     const success = document.getElementById("success");
 
-    date.value = new Date().toISOString().split("T")[0];
-
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      let valid = true;
+    const today = new Date().toISOString().split("T")[0];
+    date.value = today
+    
+   
+const resetError=()=>{
       topicError.textContent = "";
       dateError.textContent = "";
       topicError.classList.add("hidden");
       dateError.classList.add("hidden");
       success.classList.add("hidden");
+}
+ form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      resetError()
+      let valid =true;
 
       if (!topic.value.trim()) {
         topicError.textContent = "Topic is required.";
@@ -37,29 +41,31 @@ export function handleForm() {
 
       if (!valid) return;
 
-      const payload = {
+      const loadedData = {
         topic: topic.value.trim(),
-        date: date.value
+        date: date.value,
+        revisionDates: calculateRevisionDates(date.value)
+
       };
 
-     
-      const revisions = calculateRevisionDates(payload.date);
-
-      
+     if(typeof onSubmit === "function"){
+      onSubmit(loadedData)
+     }      
       success.textContent = `
-        Saved: ${payload.topic} — ${payload.date}
-        (Next revision: ${revisions.oneWeek})
+        Saved: ${loadedData.topic} — ${loadedData.date}
+        (Next revision: ${loadedData.revisionDates.oneWeek})
       `;
+      
       success.classList.remove("hidden");
 
-      console.log("Form submitted", payload);
-      console.log("Revision dates:", revisions);
+      console.log("Form submitted", loadedData);
+      console.log("Revision dates:", loadedData.revisionDates);
+      
+      topic.value = "";
+      date.value = today;
+      document.activeElement.blur();
+         });
 
-     
-      return { payload, revisions };
-    });
-
-    
     [topic, date].forEach((el) => {
       el.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
