@@ -20,12 +20,28 @@ export function getData(userId) {
  */
 export function addData(userId, data) {
   const key = `stored-data-user-${userId}`;
-
   const existingData = getData(userId) || [];
-  const newData = existingData.concat(data);
 
-  localStorage.setItem(key, JSON.stringify(newData));
+  // Prevent duplicates (same topic + date)
+  const newData = data.filter(newItem => {
+    return !existingData.some(
+      existingItem =>
+        existingItem.topic === newItem.topic &&
+        existingItem.date === newItem.date
+    );
+  });
+
+  if (newData.length === 0) {
+    console.log("No new data to add — duplicate detected.");
+    return;
+  }
+
+  const updatedData = existingData.concat(newData);
+  localStorage.setItem(key, JSON.stringify(updatedData));
+
+  console.log(`Data saved for user ${userId}`, updatedData);
 }
+
 
 /**
  * Clears all data associated with a specific user. NOTE: This is provided to help with development, and is not required in the final code

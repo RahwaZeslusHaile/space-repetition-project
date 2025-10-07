@@ -13,7 +13,26 @@
       <label for="userSelect">Select User:</label>
       <select id="userSelect"></select>
     </div>
+      <form id="revisionForm">
+    <div>
+        <label for="topic">Topic</label>
+        <input id= "topic" type="text" name="topic" required aria-describedby="topic-error" autocomplete="off">
+        <div id="topic-error" class="error hidden" aria-live="polite"></div>
+    </div>
+    <div>
+        <label for="date">Revision date</label>
+        <input type="date" id="date" name="date" required aria-describedby="date-error"  >
+        <div id="date-error"class="error hidden" aria-live="polite"></div>
+    </div>
+    <div>
+        <button type="submit" id="submitBtn">Save Revision</button>
+        <div id="success" class="status hidden" role="status" aria-live="polite"></div>
+    </div>
+   </form>
+   <button id="showDataBtn">Show User Data</button>
     <div id="renderedData"></div>
+    <button id="clearDataBtn">Clear User Data</button>
+
 
   </body>
 </html>
