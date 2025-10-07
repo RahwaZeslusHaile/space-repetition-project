@@ -25,7 +25,6 @@ export function handleForm(callback) {
           dateError.textContent = "";
           topicError.classList.add("hidden");
           dateError.classList.add("hidden");
-          success.classList.add("hidden");
     }
 
     // Handle form submission
