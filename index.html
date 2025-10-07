@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name = "description" content="Spaced Repetition Task" />
-    <script type="module" src="agenda.mjs"></script>
+    <script type="module" src="data.mjs"></script>
     <title>Spaced Repetition Task</title>
   </head>
   <body>
@@ -13,25 +13,29 @@
       <label for="userSelect">Select User:</label>
       <select id="userSelect"></select>
     </div>
+    <br>
       <form id="revisionForm">
     <div>
         <label for="topic">Topic</label>
         <input id= "topic" type="text" name="topic" required aria-describedby="topic-error" autocomplete="off">
         <div id="topic-error" class="error hidden" aria-live="polite"></div>
     </div>
+    <br>
     <div>
-        <label for="date">Revision date</label>
+        <label for="date">Start revision date</label>
         <input type="date" id="date" name="date" required aria-describedby="date-error"  >
         <div id="date-error"class="error hidden" aria-live="polite"></div>
     </div>
+    <br>
     <div>
-        <button type="submit" id="submitBtn">Save Revision</button>
-        <div id="success" class="status hidden" role="status" aria-live="polite"></div>
+        <button type="submit" id="submitBtn">Submit User Data</button>
+        <button id="clearDataBtn">Clear User Data</button>
     </div>
    </form>
-   <button id="showDataBtn">Show User Data</button>
+   
     <div id="renderedData"></div>
-    <button id="clearDataBtn">Clear User Data</button>
+    <br>
+    
 
 
   </body>
