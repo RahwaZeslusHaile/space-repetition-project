@@ -5,10 +5,15 @@
  */
 
  export function calculateRevisionDates(inputDate) {
- 
+     if (!inputDate) throw new Error("Date is required");
+
     // Convert inputDate string to Date object for calculations
     const baseDate = new Date(inputDate);
 
+      // Check for invalid date
+  if (isNaN(baseDate.getTime())) {
+    throw new Error("Invalid date format");
+  }
     // Convert Date object back to YYYY-MM-DD format
     const todaysDate = (d) => d.toISOString().split("T")[0];
 
