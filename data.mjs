@@ -17,7 +17,7 @@ export function filterAndSortData(userData) {
     // Create an empty object to hold future revision dates
     const revisionDates = {};
     // Check each revision date object (the key name e.g. "one week", and it's allocated date)
-    Object.entries(item.revisionDates).forEach(([key, date]) => {
+    Object.entries(item.revisionDates || {}).forEach(([key, date]) => {
       // Check if the date in the object is today or in the future
       if (new Date(date) >= today) {
         // Add only the future revision date to the revisionDates object
@@ -48,22 +48,26 @@ export function filterAndSortData(userData) {
  */
 export function renderDataCard(userData, displayElement) {
   // if userData is not an array, return and exit
-  if (!Array.isArray(userData)) {
-    return;
-  }
+  function formatDate(isoDate) {
+    if (!isoDate) return "—";
+  const [year, month, day] = isoDate.split("-");
+  return `${day}/${month}/${year}`;
+}
+    if (!Array.isArray(userData)|| !displayElement) return;
+
 
   // renders the HTML for the data
   // (if the revision date exists, show it; if not, show nothing - not even blank lines)
   const userInfoCard = userData.map(data => `
     <h2><strong>Topic: ${data.topic}</strong></h2>
-    <p>StartingDate: ${data.inputDate}</p>
+    <p>StartingDate: ${formatDate(data.inputDate)}</p>
     <h3>Upcoming Revision Dates:</h3>
     <ul>
-      ${data.revisionDates.oneWeek ? `<li>1 Week: ${data.revisionDates.oneWeek}</li>` : ''}
-      ${data.revisionDates.oneMonth ? `<li>1 Month: ${data.revisionDates.oneMonth}</li>` : ''}
-      ${data.revisionDates.threeMonths ? `<li>3 Months: ${data.revisionDates.threeMonths}</li>` : ''}
-      ${data.revisionDates.sixMonths ? `<li>6 Months: ${data.revisionDates.sixMonths}</li>` : ''}
-      ${data.revisionDates.oneYear ? `<li>1 Year: ${data.revisionDates.oneYear}</li>` : ''}
+      ${data.revisionDates.oneWeek ? `<li>1 Week: ${formatDate(data.revisionDates.oneWeek)}</li>` : ''}
+      ${data.revisionDates.oneMonth ? `<li>1 Month: ${formatDate(data.revisionDates.oneMonth)}</li>` : ''}
+      ${data.revisionDates.threeMonths ? `<li>3 Months: ${formatDate(data.revisionDates.threeMonths)}</li>` : ''}
+      ${data.revisionDates.sixMonths ? `<li>6 Months: ${formatDate(data.revisionDates.sixMonths)}</li>` : ''}
+      ${data.revisionDates.oneYear ? `<li>1 Year: ${formatDate(data.revisionDates.oneYear)}</li>` : ''}
     </ul>
   `).join('<hr>');
 
