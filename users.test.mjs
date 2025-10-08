@@ -32,6 +32,7 @@ test("User count is correct", () => {
     oneYear: "2029-03-01",}
     )}
     );
+
   
 
   test("throws error if no input", () => {
@@ -66,3 +67,4 @@ test("clearData removes data", () => {
   clearData(userId);
   assert.strictEqual(getData(userId), null);
 });
+

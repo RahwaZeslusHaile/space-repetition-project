@@ -2,6 +2,45 @@ import { createUserDropdown } from "./user-dropdown.mjs";
 import { addData, clearData, getData } from "./storage.mjs";
 import { handleForm } from "./form.mjs";
 
+
+
+
+/**
+ * Adds an ordinal suffix (st, nd, rd, th) to a date string for rendering.
+ * @param {string} dateString - The date string to format.
+ * @returns {string} The formatted date string with an ordinal suffix.
+ */
+
+function formatDate(isoDate) {
+  // If no date is provided, return a dash symbol
+  if (!isoDate) return "—";
+
+  const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    // Split the ISO date into parts
+    const [year, monthNum, dayNum] = isoDate.split('-');
+
+    // Create a Date object from the ISO string
+    const date = new Date(Date.UTC(year, monthNum - 1, dayNum));
+
+    const day = date.getUTCDate(); 
+    const month = months[date.getUTCMonth()]; 
+    const fullYear = date.getUTCFullYear(); 
+
+    // Determine the right suffix for the day number (st, nd, rd, th)
+    let suffix = "th"
+    // Special case for 11th, 12th, 13th
+    if (day % 10 === 1 && day !== 11) suffix = "st";
+    if (day % 10 === 2 && day !== 12) suffix = "nd";
+    if (day % 10 === 3 && day !== 13) suffix = "rd";
+
+  // Return the date in the new format
+  return `${day}${suffix} ${month} ${fullYear}`;
+}
+
 /**
  * Filters out past dates and sorts input dates into chronological order
  * @param {Array} userData - The user data array
@@ -11,35 +50,51 @@ export function filterAndSortData(userData) {
   
   // Get today's date as a Date object to compare with revision dates
   const today = new Date();
+  // Create a UTC date for today at midnight to avoid timezone issues
+  const todayUTC = new Date(Date.UTC(
+    today.getUTCFullYear(), 
+    today.getUTCMonth(), 
+    today.getUTCDate()
+  ));
+
+
+  // Create an array to hold ALL revision dates
+  const allRevisionDates = [];
   
-  // Filter out past revision dates for each topic
-  const filteredData = userData.map(item => {
-    // Create an empty object to hold future revision dates
-    const revisionDates = {};
-    // Check each revision date object (the key name e.g. "one week", and it's allocated date)
+  //Go through each item in teh userData array
+  userData.forEach(item => {
+    // Add all revision dates that are today or in the future
     Object.entries(item.revisionDates || {}).forEach(([key, date]) => {
-      // Check if the date in the object is today or in the future
-      if (new Date(date) >= today) {
-        // Add only the future revision date to the revisionDates object
-        revisionDates[key] = date;
+      //create UTC date for comparison
+      console.log(date)
+      const [year, month, day] = date.split('-').map(Number);
+      const revisionDate = new Date(Date.UTC(year, month - 1, day));
+
+      if (revisionDate >= todayUTC) {
+        allRevisionDates.push({
+          topic: item.topic,
+          date: date,   // Keep original ISO string
+          type: key   // e.g. 'oneWeek', 'oneMonth', etc.
+        });
       }
     });
-    return {
-      // Keep all the original item's properties
-      topic: item.topic,           
-      inputDate: item.inputDate, 
-      // Keep the new filtered revision dates
-      revisionDates: revisionDates
-    };
   });
 
-  // Sort any input dates in chronological order
-  return filteredData.sort((a, b) => {
-    const dateA = new Date(a.inputDate);
-    const dateB = new Date(b.inputDate);
+
+  // Sort revision dates using UTC in chronological order
+  return allRevisionDates.sort((a, b) => {
+    // Parse date parts manually from the ISO strings to avoid timezone issues
+    const [yearA, monthA, dayA] = a.date.split('-').map(Number);
+    const [yearB, monthB, dayB] = b.date.split('-').map(Number);
+
+    // Create UTC dates for accurate comparison
+    const dateA = new Date(Date.UTC(yearA, monthA - 1, dayA));
+    const dateB = new Date(Date.UTC(yearB, monthB - 1, dayB));
     return dateA - dateB;
   });
 }
+
+
 
 /**
  * Renders a data card for a specific user's data.
@@ -47,32 +102,23 @@ export function filterAndSortData(userData) {
  * @param {*} displayElement  - the HTML element to render the data into
  */
 export function renderDataCard(userData, displayElement) {
-  // if userData is not an array, return and exit
-  function formatDate(isoDate) {
-    if (!isoDate) return "—";
-  const [year, month, day] = isoDate.split("-");
-  return `${day}/${month}/${year}`;
-}
+  
+    // if userData is not an array, return and exit
     if (!Array.isArray(userData)|| !displayElement) return;
 
 
-  // renders the HTML for the data
-  // (if the revision date exists, show it; if not, show nothing - not even blank lines)
-  const userInfoCard = userData.map(data => `
-    <h2><strong>Topic: ${data.topic}</strong></h2>
-    <p>StartingDate: ${formatDate(data.inputDate)}</p>
-    <h3>Upcoming Revision Dates:</h3>
+    // Render the revision dates as a list
+    const userInfoCard = `
+    <h2>Upcoming Revision Dates</h2>
     <ul>
-      ${data.revisionDates.oneWeek ? `<li>1 Week: ${formatDate(data.revisionDates.oneWeek)}</li>` : ''}
-      ${data.revisionDates.oneMonth ? `<li>1 Month: ${formatDate(data.revisionDates.oneMonth)}</li>` : ''}
-      ${data.revisionDates.threeMonths ? `<li>3 Months: ${formatDate(data.revisionDates.threeMonths)}</li>` : ''}
-      ${data.revisionDates.sixMonths ? `<li>6 Months: ${formatDate(data.revisionDates.sixMonths)}</li>` : ''}
-      ${data.revisionDates.oneYear ? `<li>1 Year: ${formatDate(data.revisionDates.oneYear)}</li>` : ''}
+      ${userData.map(item => 
+        `<li>${item.topic}, ${formatDate(item.date)}</li>`
+      ).join('\n')}
     </ul>
-  `).join('<hr>');
+  `;
 
-  displayElement.innerHTML = userInfoCard;
-}
+    displayElement.innerHTML = userInfoCard;
+ }
 
 // When the DOM is fully loaded, set up event listeners
 document.addEventListener("DOMContentLoaded", () => {

@@ -5,23 +5,28 @@
  */
 
  export function calculateRevisionDates(inputDate) {
-     if (!inputDate) throw new Error("Date is required");
+    if (!inputDate) throw new Error("Date is required");
 
-    // Convert inputDate string to Date object for calculations
-    const baseDate = new Date(inputDate);
+    // Parse date parts manually from the input ISO date
+    const [year, month, day] = inputDate.split("-").map(Number);
 
-      // Check for invalid date
-  if (isNaN(baseDate.getTime())) {
-    throw new Error("Invalid date format");
-  }
-    // Convert Date object back to YYYY-MM-DD format
-    const todaysDate = (d) => d.toISOString().split("T")[0];
+     // Create base date in UTC
+    const baseDate = new Date(Date.UTC(year, month - 1, day));
 
+    // Format date back to ISO string YYYY-MM-DD
+    const formatToISO = (date) => date.toISOString().split("T")[0];
+
+    // Create new UTC dates to avoid incorrectly adjusted issues
+    // const createUTCDate = (y, m, d) => new Date(Date.UTC(y, m, d));
+
+    // NB: the month parameter is zero-based in JS Date therefore is adjusted first
     return {
-      oneWeek: todaysDate(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 7)),
-      oneMonth: todaysDate(new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, baseDate.getDate())),
-      threeMonths: todaysDate(new Date(baseDate.getFullYear(), baseDate.getMonth() + 3, baseDate.getDate())),
-      sixMonths: todaysDate(new Date(baseDate.getFullYear(), baseDate.getMonth() + 6, baseDate.getDate())),
-      oneYear: todaysDate(new Date(baseDate.getFullYear() + 1, baseDate.getMonth(), baseDate.getDate())),
+        oneWeek: formatToISO(new Date(Date.UTC(year, month - 1, day + 7))),
+        oneMonth: formatToISO(new Date(Date.UTC(year, month, day))),
+        threeMonths: formatToISO(new Date(Date.UTC(year, month + 2, day))),
+        sixMonths: formatToISO(new Date(Date.UTC(year, month + 5, day))),
+        oneYear: formatToISO(new Date(Date.UTC(year + 1, month - 1, day)))
     };
-  }
+
+  };
+
