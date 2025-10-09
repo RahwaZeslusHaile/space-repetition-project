@@ -16,9 +16,6 @@
     // Format date back to ISO string YYYY-MM-DD
     const formatToISO = (date) => date.toISOString().split("T")[0];
 
-    // Create new UTC dates to avoid incorrectly adjusted issues
-    // const createUTCDate = (y, m, d) => new Date(Date.UTC(y, m, d));
-
     // NB: the month parameter is zero-based in JS Date therefore is adjusted first
     return {
         oneWeek: formatToISO(new Date(Date.UTC(year, month - 1, day + 7))),

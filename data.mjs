@@ -66,7 +66,6 @@ export function filterAndSortData(userData) {
     // Add all revision dates that are today or in the future
     Object.entries(item.revisionDates || {}).forEach(([key, date]) => {
       //create UTC date for comparison
-      console.log(date)
       const [year, month, day] = date.split('-').map(Number);
       const revisionDate = new Date(Date.UTC(year, month - 1, day));
 
@@ -109,10 +108,9 @@ export function renderDataCard(userData, displayElement) {
 
     // Render the revision dates as a list
     const userInfoCard = `
-    <h2>Upcoming Revision Dates</h2>
     <ul>
       ${userData.map(item => 
-        `<li>${item.topic}, ${formatDate(item.date)}</li>`
+        `<li><strong>${item.topic}</strong>: ${formatDate(item.date)}</li>`
       ).join('\n')}
     </ul>
   `;

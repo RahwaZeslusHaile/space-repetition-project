@@ -8,36 +8,39 @@
     <title>Spaced Repetition Task</title>
   </head>
   <body>
-    <h1>Spaced Repetition Task</h1>
-    <div>
-      <label for="userSelect">Select User:</label>
-      <select id="userSelect"></select>
-    </div>
-    <br>
-      <form id="revisionForm">
-    <div>
-        <label for="topic">Topic</label>
-        <input id= "topic" type="text" name="topic" required aria-describedby="topic-error" autocomplete="off">
+    <main>
+      <h1>Spaced Repetition Task</h1>
+      <div role="form" aria-label="User selection">
+        <label for="userSelect">Select User:</label>
+        <select id="userSelect" aria-required="true"></select>
+      </div>
+      <br>
+      <form id="revisionForm" aria-label="Revision schedule form">
+        <fieldset>
+          <legend>Enter revision details</legend>
+          <div>
+        <label for="topic">Topic:</label>
+        <input id="topic" type="text" name="topic" required aria-describedby="topic-error" autocomplete="off">
         <div id="topic-error" class="error hidden" aria-live="polite"></div>
     </div>
     <br>
     <div>
-        <label for="date">Start revision date</label>
+        <label for="date">Start revision date:</label>
         <input type="date" id="date" name="date" required aria-describedby="date-error"  >
         <div id="date-error"class="error hidden" aria-live="polite"></div>
     </div>
     <br>
-    <div>
+    <div role="group" aria-label="Form actions">
         <button type="submit" id="submitBtn">Submit User Data</button>
-        <button id="clearDataBtn">Clear User Data</button>
-        <div id="success" class="status hidden" role="status" aria-live="polite"></div>
+        <button type="button" id="clearDataBtn">Clear User Data</button>   
     </div>
-   </form>
+        </fieldset>
+      </form>
    
-    <div id="renderedData"></div>
-    <br>
-    
-
-
+      <section aria-label="Revision schedule">
+        <h2>Upcoming Revision Dates</h2>
+        <div id="renderedData" role="region" aria-live="polite"></div>
+      </section>
+    </main>
   </body>
 </html>
