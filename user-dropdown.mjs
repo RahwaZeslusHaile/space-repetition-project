@@ -19,6 +19,8 @@ export function createUserDropdown() {
   const defaultOption = document.createElement("option");
   defaultOption.value = "";
   defaultOption.text = "Please select a user";
+  defaultOption.setAttribute("disabled", "true"); 
+  defaultOption.setAttribute("selected", "true"); 
   userSelect.appendChild(defaultOption);
 
   // Populate dropdown with user options
@@ -26,6 +28,7 @@ export function createUserDropdown() {
     const userOption = document.createElement("option");
     userOption.value = userId;
     userOption.text = `User ${userId}`;
+    userOption.setAttribute("aria-label", `Select User ${userId}`);
     userSelect.appendChild(userOption);
   });
 }
